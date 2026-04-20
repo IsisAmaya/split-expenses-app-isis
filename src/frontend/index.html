@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splitwise Lite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="nav-inner">
+            <a href="/" class="logo">💸 Splitwise Lite</a>
+            <span class="tagline">Divide gastos sin dramas</span>
+        </div>
+    </header>
+
+    <div id="alert" class="alert" role="alert" hidden></div>
+
+    <main>
+
+        <!-- ===== VISTA: GRUPOS ===== -->
+        <section id="groups-view">
+
+            <div class="hero">
+                <h1>¿Quién le debe a quién?</h1>
+                <p>Crea un grupo, registra los gastos y deja que la app haga las cuentas.</p>
+                <button id="toggle-create-form" class="btn btn-primary btn-lg">+ Nuevo grupo</button>
+            </div>
+
+            <div id="create-group-form-wrapper" hidden>
+                <form id="create-group-form" class="card form-card">
+                    <div class="form-header">
+                        <h2>Crear grupo</h2>
+                        <button type="button" id="close-create-form" class="btn-icon">✕</button>
+                    </div>
+                    <div class="form-body">
+                        <div class="input-group">
+                            <label for="group-name">Nombre del grupo</label>
+                            <input type="text" id="group-name"
+                                placeholder="Viaje a Santa Marta, Arriendo Marzo..."
+                                maxlength="100" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="group-members">Miembros</label>
+                            <div class="members-input-wrapper" id="members-input-wrapper">
+                                <div id="members-tags" class="members-tags"></div>
+                                <div class="members-add-row">
+                                    <input type="text" id="group-members"
+                                        placeholder="Nombre del miembro..."
+                                        maxlength="50" autocomplete="off">
+                                    <button type="button" id="add-member-btn" class="btn btn-primary">+</button>
+                                </div>
+                            </div>
+                            <input type="hidden" id="members-hidden">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Crear grupo</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="group-list" class="group-grid"></div>
+
+            <div id="no-groups" class="empty-state" hidden>
+                <div class="empty-icon">📋</div>
+                <h3>Sin grupos todavía</h3>
+                <p>Crea tu primer grupo para empezar a dividir gastos.</p>
+            </div>
+
+        </section>
+
+        <!-- ===== VISTA: DETALLE ===== -->
+        <section id="group-detail-view" hidden>
+
+            <div class="detail-header">
+                <a href="#" id="back-link" class="back-link">← Grupos</a>
+                <h1 id="group-title"></h1>
+                <div id="members-bar" class="members-bar"></div>
+            </div>
+
+            <div id="stats-bar" class="stats-bar"></div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="expenses">🧾 Gastos</button>
+                <button class="tab" data-tab="balances">⚖️ Balances</button>
+                <button class="tab" data-tab="settlements">💰 Saldar</button>
+            </div>
+
+            <!-- Tab Gastos -->
+            <div id="tab-expenses" class="tab-content active">
+                <form id="add-expense-form" class="card expense-form">
+                    <div class="expense-form-row">
+                        <input type="text" id="expense-desc"
+                            placeholder="¿En qué se gastó?"
+                            maxlength="200" required>
+                        <input type="number" id="expense-amount"
+                            placeholder="Monto" min="1" step="0.01" required>
+                        <select id="expense-paid-by" required>
+                            <option value="">¿Quién pagó?</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">+ Agregar</button>
+                    </div>
+                </form>
+                <div id="expenses-table"></div>
+                <div id="no-expenses" class="empty-state empty-sm" hidden>
+                    <div class="empty-icon">🧾</div>
+                    <p>Agrega el primer gasto del grupo.</p>
+                </div>
+            </div>
+
+            <!-- Tab Balances -->
+            <div id="tab-balances" class="tab-content">
+                <div id="balances-list" class="balance-list"></div>
+                <div id="no-balances" class="empty-state empty-sm" hidden>
+                    <div class="empty-icon">⚖️</div>
+                    <p>Los balances aparecen cuando registres gastos.</p>
+                </div>
+            </div>
+
+            <!-- Tab Saldar -->
+            <div id="tab-settlements" class="tab-content">
+                <div id="settlements-list" class="settlement-list"></div>
+                <div id="no-settlements" class="empty-state empty-sm" hidden>
+                    <div class="empty-icon">✅</div>
+                    <p>¡Todos están en paz! No hay deudas pendientes.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Splitwise Lite — Proyecto Final CI/CD</p>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

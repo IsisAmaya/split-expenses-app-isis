@@ -1,0 +1,49 @@
+services:
+  database:
+    build: ./database
+    environment:
+      POSTGRES_USER: splitwise
+      POSTGRES_PASSWORD: splitwise
+      POSTGRES_DB: splitwise
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U splitwise -d splitwise"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://splitwise:splitwise@database:5432/splitwise
+      APP_ENV: development
+      CORS_ORIGINS: '["http://localhost:3000","http://localhost:8080"]'
+    depends_on:
+      database:
+        condition: service_healthy
+    # Override para desarrollo local: espera DB + migraciones + hot reload
+    command: >
+      sh -c "
+        until pg_isready -h database -U splitwise 2>/dev/null; do
+          echo 'Esperando DB...' && sleep 2;
+        done &&
+        sleep 2 &&
+        alembic upgrade head &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
