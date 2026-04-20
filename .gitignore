@@ -47,3 +47,6 @@ acceptance_coverage.xml
 
 # Notes (local only)
 notes/
+
+# Codex
+.codex

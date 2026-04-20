@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: black-backend
+        name: black backend
+        entry: bash -c 'cd src/backend && python3 -m black app tests'
+        language: system
+        pass_filenames: false
+        files: ^src/backend/
+
+      - id: pylint-backend
+        name: pylint backend
+        entry: bash -c 'cd src/backend && python3 -m pylint app --fail-under=9'
+        language: system
+        pass_filenames: false
+        files: ^src/backend/
+
+      - id: pytest-backend-unit
+        name: pytest backend unit
+        entry: bash -c 'cd src/backend && python3 -m pytest tests'
+        language: system
+        pass_filenames: false
+        always_run: true
