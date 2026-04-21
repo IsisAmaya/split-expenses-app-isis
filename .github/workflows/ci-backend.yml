@@ -53,7 +53,14 @@ jobs:
       # 7. Ejecutar Pruebas Unitarias con Pytest y generar reporte de cobertura
       - name: Run Unit Tests with pytest and Coverage
         run: |
-          pytest --ignore=./src/backend/tests/test_acceptance_app.py  --ignore=./src/backend/tests/test_smoke_app.py --ignore=./src/backend/tests/test_e2e_routes.py --ignore=./src/backend/tests/test_security_routes.py # Genera un informe XML para SonarCloud
+          pytest ./src/backend/tests \
+            --cov=./src/backend/app \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term \
+            --ignore=./src/backend/tests/test_acceptance_app.py \
+            --ignore=./src/backend/tests/test_smoke_app.py \
+            --ignore=./src/backend/tests/test_e2e_routes.py \
+            --ignore=./src/backend/tests/test_security_routes.py
 
       # 7.1. Cargar reportes de cobertura y pruebas unitarias como artefactos
       - name: Upload Test Reports Artifacts
@@ -62,6 +69,7 @@ jobs:
         with:
           name: test-reports
           path: |
+            coverage.xml
             htmlcov/
             report.html
 
@@ -114,4 +122,3 @@ jobs:
         run: |
           echo "repo_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
           echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
-
