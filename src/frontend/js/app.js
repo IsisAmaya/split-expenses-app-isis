@@ -12,6 +12,7 @@ const $$ = (sel) => document.querySelectorAll(sel);
 const groupsView = $("#groups-view");
 const detailView = $("#group-detail-view");
 const alertEl = $("#alert");
+const api = globalThis.api;
 
 // --- Utilidades ---
 
@@ -35,7 +36,9 @@ function formatDate(dateStr) {
 const groupEmojis = ["🏖️", "🍕", "🏠", "🎉", "✈️", "🎮", "🍻", "⚽", "🎵", "🚗"];
 function getGroupEmoji(name) {
     let hash = 0;
-    for (const ch of name) hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0;
+    for (const ch of name) {
+        hash = Math.trunc((hash << 5) - hash + ch.codePointAt(0));
+    }
     return groupEmojis[Math.abs(hash) % groupEmojis.length];
 }
 
@@ -55,7 +58,7 @@ function showGroupsView() {
     currentGroupId = null;
     groupsView.hidden = false;
     detailView.hidden = true;
-    window.location.hash = "";
+    globalThis.location.hash = "";
     loadGroups();
 }
 
@@ -63,7 +66,7 @@ function showDetailView(groupId) {
     currentGroupId = groupId;
     groupsView.hidden = true;
     detailView.hidden = false;
-    window.location.hash = `#group/${groupId}`;
+    globalThis.location.hash = `#group/${groupId}`;
     loadGroupDetail(groupId);
 }
 
@@ -99,6 +102,23 @@ async function loadGroups() {
                 showDetailView(card.dataset.id);
             });
         });
+    } catch (err) {
+        showAlert(err.message);
+    }
+}
+
+async function handleDeleteGroup() {
+    if (!currentGroupId) return;
+
+    const confirmed = globalThis.confirm(
+        "Se eliminará el grupo y todos sus gastos. Esta acción no se puede deshacer."
+    );
+    if (!confirmed) return;
+
+    try {
+        await api.deleteGroup(currentGroupId);
+        showAlert("Grupo eliminado", "success");
+        showGroupsView();
     } catch (err) {
         showAlert(err.message);
     }
@@ -211,7 +231,10 @@ function renderBalances(balances) {
     empty.hidden = true;
     container.innerHTML = balances.map((b) => {
         const val = Number(b.balance);
-        const cls = val > 0 ? "positive" : val < 0 ? "negative" : "zero";
+        let cls = "zero";
+        if (val > 0) cls = "positive";
+        else if (val < 0) cls = "negative";
+
         let text;
         if (val > 0) text = `+${formatMoney(val)}`;
         else if (val < 0) text = `-${formatMoney(Math.abs(val))}`;
@@ -278,7 +301,7 @@ function renderMemberTags() {
 
     container.querySelectorAll(".member-tag-remove").forEach((btn) => {
         btn.addEventListener("click", () => {
-            membersList.splice(parseInt(btn.dataset.index), 1);
+            membersList.splice(Number.parseInt(btn.dataset.index, 10), 1);
             renderMemberTags();
         });
     });
@@ -336,7 +359,7 @@ $("#add-expense-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = {
         description: $("#expense-desc").value.trim(),
-        amount: parseFloat($("#expense-amount").value),
+        amount: Number.parseFloat($("#expense-amount").value),
         paid_by_id: $("#expense-paid-by").value,
     };
 
@@ -357,6 +380,8 @@ $("#back-link").addEventListener("click", (e) => {
     showGroupsView();
 });
 
+$("#delete-group-btn").addEventListener("click", handleDeleteGroup);
+
 // Tabs
 $$(".tab").forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -370,8 +395,8 @@ $$(".tab").forEach((tab) => {
 // --- Routing por hash ---
 
 function handleRoute() {
-    const hash = window.location.hash;
-    const match = hash.match(/^#group\/(.+)$/);
+    const hash = globalThis.location.hash;
+    const match = /^#group\/(.+)$/.exec(hash);
     if (match) {
         showDetailView(match[1]);
     } else {
@@ -379,7 +404,7 @@ function handleRoute() {
     }
 }
 
-window.addEventListener("hashchange", handleRoute);
+globalThis.addEventListener("hashchange", handleRoute);
 
 // --- Init ---
 handleRoute();

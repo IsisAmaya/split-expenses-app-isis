@@ -65,7 +65,8 @@ def calculate_settlements(
         group_id: ID del grupo.
 
     Returns:
-        Lista de transferencias: [{"from": nombre, "to": nombre, "amount": monto}]
+        Lista de transferencias:
+        [{"from": nombre, "to": nombre, "amount": monto}]
     """
     balances = calculate_balances(db, group_id)
 

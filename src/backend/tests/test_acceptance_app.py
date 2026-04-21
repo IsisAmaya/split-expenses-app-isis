@@ -61,7 +61,7 @@ def browser(app_base_url: str) -> Iterator[WebDriver]:
     del app_base_url
     try:
         driver = _build_driver()
-    except (WebDriverException, OSError, PermissionError) as exc:
+    except (WebDriverException, OSError) as exc:
         pytest.skip(f"No fue posible iniciar Selenium: {exc}")
 
     driver.implicitly_wait(1)
@@ -157,3 +157,18 @@ def test_acceptance_can_register_expense_and_see_balances(
     assert any("Ana" in text and "60" in text for text in balance_texts)
     assert any("Beto" in text and "30" in text for text in balance_texts)
     assert any("Carla" in text and "30" in text for text in balance_texts)
+
+
+def test_acceptance_can_delete_group_from_ui(browser: WebDriver, app_base_url: str):
+    """Verifica que un usuario pueda eliminar un grupo desde la vista detalle."""
+    group_name = f"Aceptacion Borrado {int(time.time() * 1000)}"
+    _create_group(browser, app_base_url, group_name)
+
+    browser.find_element(By.ID, "delete-group-btn").click()
+    browser.switch_to.alert.accept()
+
+    _wait(browser).until(ec.visibility_of_element_located((By.ID, "groups-view")))
+    _wait(browser).until(ec.visibility_of_element_located((By.ID, "group-list")))
+
+    group_cards = browser.find_elements(By.CSS_SELECTOR, "#group-list .group-card h3")
+    assert all(card.text != group_name for card in group_cards)

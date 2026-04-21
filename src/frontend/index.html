@@ -76,8 +76,11 @@
         <section id="group-detail-view" hidden>
 
             <div class="detail-header">
-                <a href="#" id="back-link" class="back-link">← Grupos</a>
-                <h1 id="group-title"></h1>
+                <div class="detail-actions">
+                    <a href="#" id="back-link" class="back-link">← Grupos</a>
+                    <button type="button" id="delete-group-btn" class="btn btn-danger">Eliminar grupo</button>
+                </div>
+                <h1 id="group-title" aria-live="polite">Detalle del grupo</h1>
                 <div id="members-bar" class="members-bar"></div>
             </div>
 

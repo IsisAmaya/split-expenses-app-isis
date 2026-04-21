@@ -16,6 +16,8 @@ from sqlalchemy.orm import relationship
 
 from .database import Base
 
+CASCADING_DELETE = "all, delete-orphan"
+
 
 class Group(Base):
     """Modelo de grupo de gastos compartidos."""
@@ -31,10 +33,14 @@ class Group(Base):
     )
 
     members = relationship(
-        "Member", back_populates="group", cascade="all, delete-orphan"
+        "Member",
+        back_populates="group",
+        cascade=CASCADING_DELETE,
     )
     expenses = relationship(
-        "Expense", back_populates="group", cascade="all, delete-orphan"
+        "Expense",
+        back_populates="group",
+        cascade=CASCADING_DELETE,
     )
 
 
@@ -48,7 +54,9 @@ class Member(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id = Column(
-        UUID(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("groups.id", ondelete="CASCADE"),
+        nullable=False,
     )
     name = Column(String(50), nullable=False)
     created_at = Column(
@@ -60,7 +68,7 @@ class Member(Base):
     group = relationship("Group", back_populates="members")
     expenses_paid = relationship("Expense", back_populates="paid_by")
     splits = relationship(
-        "ExpenseSplit", back_populates="member", cascade="all, delete-orphan"
+        "ExpenseSplit", back_populates="member", cascade=CASCADING_DELETE
     )
 
 
@@ -71,7 +79,9 @@ class Expense(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id = Column(
-        UUID(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("groups.id", ondelete="CASCADE"),
+        nullable=False,
     )
     paid_by_id = Column(
         UUID(as_uuid=True),
@@ -89,7 +99,7 @@ class Expense(Base):
     group = relationship("Group", back_populates="expenses")
     paid_by = relationship("Member", back_populates="expenses_paid")
     splits = relationship(
-        "ExpenseSplit", back_populates="expense", cascade="all, delete-orphan"
+        "ExpenseSplit", back_populates="expense", cascade=CASCADING_DELETE
     )
 
 
