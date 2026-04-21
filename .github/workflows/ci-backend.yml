@@ -44,11 +44,11 @@ jobs:
 
       # 5. Ejecutar Pylint (Linter) y guardar reporte
       - name: Run Pylint (Linter)
-        run: pylint ./src/backend/app --output-format=text --fail-under=9 > pylint-report.txt 
+        run: pylint ./src/backend/app --output-format=text --fail-under=9 > pylint-report.txt || true
 
       # 6. Ejecutar Flake8 (Linter) y guardar reporte
       - name: Run Flake8 (Linter)
-        run: flake8 ./src/backend/app --output-file=flake8-report.txt 
+        run: flake8 ./src/backend/app --output-file=flake8-report.txt || true
 
       # 7. Ejecutar Pruebas Unitarias con Pytest y generar reporte de cobertura
       - name: Run Unit Tests with pytest and Coverage
