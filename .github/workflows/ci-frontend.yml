@@ -1,1 +1,84 @@
-# TODO
+name: Frontend CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/frontend/**"
+  workflow_dispatch:
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install frontend lint tools
+        run: |
+          npm install --no-save eslint @eslint/js globals htmlhint stylelint stylelint-config-standard
+
+      - name: Create temporary lint configs
+        run: |
+          cat <<'EOF' > eslint.config.mjs
+          import js from "@eslint/js";
+          import globals from "globals";
+
+          export default [
+            {
+              ...js.configs.recommended,
+              files: ["js/**/*.js"],
+              languageOptions: {
+                ecmaVersion: 2021,
+                sourceType: "script",
+                globals: {
+                  ...globals.browser,
+                  ...globals.es2021,
+                },
+              },
+              rules: {
+                ...js.configs.recommended.rules,
+                "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+              },
+            },
+          ];
+          EOF
+
+          cat <<'EOF' > .stylelintrc.json
+          {
+            "extends": "stylelint-config-standard"
+          }
+          EOF
+
+          cat <<'EOF' > .htmlhintrc
+          {
+            "tag-pair": true,
+            "tagname-lowercase": true,
+            "attr-lowercase": true,
+            "attr-value-double-quotes": true,
+            "doctype-first": false,
+            "spec-char-escape": false
+          }
+          EOF
+
+      - name: Lint JavaScript
+        run: npx eslint js/**/*.js
+
+      - name: Lint CSS
+        run: npx stylelint "css/**/*.css"
+
+      - name: Lint HTML
+        run: npx htmlhint index.html
+
+      - name: Build frontend image
+        run: docker build -t split-expenses-frontend-ci -f Dockerfile .

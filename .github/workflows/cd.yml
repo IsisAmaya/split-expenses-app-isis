@@ -1,1 +1,5 @@
-# TODO
+name: CD
+
+# Disparadores del Workflow
+on:
+  workflow_dispatch: # Permite ejecución manual desde la UI de GitHub Actions
