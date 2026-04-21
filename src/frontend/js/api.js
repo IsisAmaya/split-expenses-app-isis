@@ -38,6 +38,10 @@ const api = {
         return this.request("GET", `/groups/${groupId}`);
     },
 
+    deleteGroup(groupId) {
+        return this.request("DELETE", `/groups/${groupId}`);
+    },
+
     // --- Gastos ---
     createExpense(groupId, data) {
         return this.request("POST", `/groups/${groupId}/expenses`, data);

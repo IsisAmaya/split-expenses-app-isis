@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from ..database import get_db
@@ -47,6 +47,16 @@ def get_group(group_id: UUID, db: Session = Depends(get_db)):
         raise not_found("Grupo no encontrado")
 
     return _to_group_response(group)
+
+
+@router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_group(group_id: UUID, db: Session = Depends(get_db)):
+    """Elimina un grupo existente."""
+    deleted = group_service.delete_group(db, group_id)
+    if not deleted:
+        raise not_found("Grupo no encontrado")
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 def _to_group_response(group) -> GroupResponse:

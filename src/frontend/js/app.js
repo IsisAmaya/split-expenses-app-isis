@@ -104,6 +104,23 @@ async function loadGroups() {
     }
 }
 
+async function handleDeleteGroup() {
+    if (!currentGroupId) return;
+
+    const confirmed = window.confirm(
+        "Se eliminará el grupo y todos sus gastos. Esta acción no se puede deshacer."
+    );
+    if (!confirmed) return;
+
+    try {
+        await api.deleteGroup(currentGroupId);
+        showAlert("Grupo eliminado", "success");
+        showGroupsView();
+    } catch (err) {
+        showAlert(err.message);
+    }
+}
+
 // --- Renderizado: Detalle de grupo ---
 
 async function loadGroupDetail(groupId) {
@@ -356,6 +373,8 @@ $("#back-link").addEventListener("click", (e) => {
     e.preventDefault();
     showGroupsView();
 });
+
+$("#delete-group-btn").addEventListener("click", handleDeleteGroup);
 
 // Tabs
 $$(".tab").forEach((tab) => {

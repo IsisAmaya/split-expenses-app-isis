@@ -166,6 +166,17 @@ footer {
 
 .btn-primary:active { transform: translateY(0); }
 
+.btn-danger {
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.18);
+}
+
+.btn-danger:hover {
+    background: var(--red);
+    color: white;
+}
+
 .btn-lg   { padding: 0.75rem 2rem; font-size: 1rem; border-radius: var(--radius-sm); }
 .btn-block { width: 100%; }
 
@@ -316,6 +327,14 @@ input::placeholder { color: #94a3b8; }
    DETAIL HEADER
    ============================================ */
 .detail-header { margin-bottom: 1.5rem; }
+
+.detail-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
 
 .back-link {
     display: inline-block;
@@ -579,6 +598,7 @@ input::placeholder { color: #94a3b8; }
 @media (max-width: 640px) {
     main { padding: 1rem; }
     .hero h1 { font-size: 1.75rem; }
+    .detail-actions { flex-direction: column; align-items: stretch; }
     .stats-bar { grid-template-columns: 1fr 1fr; }
     .expense-form-row { flex-direction: column; }
     .expense-form-row .btn { width: 100%; }
