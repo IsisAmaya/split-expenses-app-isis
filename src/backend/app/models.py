@@ -32,8 +32,16 @@ class Group(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    members = relationship("Member", back_populates="group", cascade=CASCADING_DELETE)
-    expenses = relationship("Expense", back_populates="group", cascade=CASCADING_DELETE)
+    members = relationship(
+        "Member",
+        back_populates="group",
+        cascade=CASCADING_DELETE,
+    )
+    expenses = relationship(
+        "Expense",
+        back_populates="group",
+        cascade=CASCADING_DELETE,
+    )
 
 
 class Member(Base):
@@ -46,7 +54,9 @@ class Member(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id = Column(
-        UUID(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("groups.id", ondelete="CASCADE"),
+        nullable=False,
     )
     name = Column(String(50), nullable=False)
     created_at = Column(
@@ -69,7 +79,9 @@ class Expense(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id = Column(
-        UUID(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("groups.id", ondelete="CASCADE"),
+        nullable=False,
     )
     paid_by_id = Column(
         UUID(as_uuid=True),

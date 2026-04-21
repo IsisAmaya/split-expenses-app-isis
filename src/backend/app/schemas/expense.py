@@ -26,7 +26,10 @@ class ExpenseCreate(AppSchema):
     paid_by_id: UUID
     split_among_ids: list[UUID] | None = Field(
         default=None,
-        description="IDs de miembros entre quienes se divide. Si es null, se divide entre todos.",
+        description=(
+            "IDs de miembros entre quienes se divide. "
+            "Si es null, se divide entre todos."
+        ),
     )
 
 
