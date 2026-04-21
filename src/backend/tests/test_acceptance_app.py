@@ -61,7 +61,7 @@ def browser(app_base_url: str) -> Iterator[WebDriver]:
     del app_base_url
     try:
         driver = _build_driver()
-    except (WebDriverException, OSError, PermissionError) as exc:
+    except (WebDriverException, OSError) as exc:
         pytest.skip(f"No fue posible iniciar Selenium: {exc}")
 
     driver.implicitly_wait(1)

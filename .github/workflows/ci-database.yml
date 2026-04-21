@@ -17,13 +17,13 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: splitwise
-          POSTGRES_USER: splitwise
-          POSTGRES_PASSWORD: splitwise
+          POSTGRES_DB: ${{ vars.POSTGRES_DB || 'splitwise' }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER || 'splitwise' }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U splitwise -d splitwise"
+          --health-cmd "pg_isready -U ${{ vars.POSTGRES_USER || 'splitwise' }} -d ${{ vars.POSTGRES_DB || 'splitwise' }}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -33,7 +33,9 @@ jobs:
         working-directory: src/backend
 
     env:
-      DATABASE_URL: postgresql://splitwise:splitwise@localhost:5432/splitwise
+      POSTGRES_DB: ${{ vars.POSTGRES_DB || 'splitwise' }}
+      POSTGRES_USER: ${{ vars.POSTGRES_USER || 'splitwise' }}
+      DATABASE_URL: postgresql://${{ vars.POSTGRES_USER || 'splitwise' }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ vars.POSTGRES_DB || 'splitwise' }}
 
     steps:
       - name: Checkout code

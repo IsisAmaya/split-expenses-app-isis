@@ -67,7 +67,6 @@ header {
 
 .tagline {
     font-size: 0.78rem;
-    color: var(--text-muted);
     padding: 0.2rem 0.6rem;
     background: var(--primary-light);
     color: var(--primary);

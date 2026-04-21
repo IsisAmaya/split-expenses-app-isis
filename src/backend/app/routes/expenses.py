@@ -1,5 +1,6 @@
 """Rutas API para gestión de gastos, balances y transferencias."""
 
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -17,13 +18,14 @@ from ..schemas import (
 from ..services import balance_service, expense_service
 
 router = APIRouter(prefix="/api/groups/{group_id}", tags=["expenses"])
+DbSession = Annotated[Session, Depends(get_db)]
 
 
 @router.post("/expenses", response_model=ExpenseResponse, status_code=201)
 def create_expense(
     group_id: UUID,
     payload: ExpenseCreate,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     """Registra un gasto en el grupo."""
     try:
@@ -42,7 +44,7 @@ def create_expense(
 
 
 @router.get("/expenses", response_model=list[ExpenseResponse])
-def list_expenses(group_id: UUID, db: Session = Depends(get_db)):
+def list_expenses(group_id: UUID, db: DbSession):
     """Lista todos los gastos del grupo."""
     expenses = expense_service.list_expenses(db, group_id)
     return [_to_expense_response(e) for e in expenses]
@@ -52,7 +54,7 @@ def list_expenses(group_id: UUID, db: Session = Depends(get_db)):
 def delete_expense(
     group_id: UUID,
     expense_id: UUID,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     """Elimina un gasto del grupo."""
     deleted = expense_service.delete_expense(db, group_id, expense_id)
@@ -61,7 +63,7 @@ def delete_expense(
 
 
 @router.get("/balances", response_model=list[BalanceResponse])
-def get_balances(group_id: UUID, db: Session = Depends(get_db)):
+def get_balances(group_id: UUID, db: DbSession):
     """Calcula los balances de cada miembro del grupo."""
     try:
         balances = balance_service.calculate_balances(db, group_id)
@@ -75,7 +77,7 @@ def get_balances(group_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.get("/settlements", response_model=list[SettlementResponse])
-def get_settlements(group_id: UUID, db: Session = Depends(get_db)):
+def get_settlements(group_id: UUID, db: DbSession):
     """Calcula las transferencias mínimas para saldar deudas."""
     try:
         settlements = balance_service.calculate_settlements(db, group_id)
