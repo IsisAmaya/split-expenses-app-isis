@@ -81,3 +81,22 @@ def list_groups(db: Session) -> list[Group]:
         .order_by(Group.created_at.desc())
         .all()
     )
+
+
+def delete_group(db: Session, group_id: UUID) -> bool:
+    """Elimina un grupo por ID.
+
+    Args:
+        db: Sesión de base de datos.
+        group_id: ID del grupo a eliminar.
+
+    Returns:
+        ``True`` si el grupo existía y fue eliminado, ``False`` si no existía.
+    """
+    group = db.query(Group).filter(Group.id == group_id).first()
+    if not group:
+        return False
+
+    db.delete(group)
+    db.commit()
+    return True

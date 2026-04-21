@@ -66,7 +66,10 @@ def create_expense(
 
     # Calcular división equitativa
     num_members = len(split_members)
-    share = (amount / num_members).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    share = (amount / num_members).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP,
+    )
 
     # Ajustar el último para que la suma sea exacta
     remainder = amount - (share * (num_members - 1))

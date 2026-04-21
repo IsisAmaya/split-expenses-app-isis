@@ -82,6 +82,29 @@ def test_integration_route_maps_missing_group_to_http_404(db_session):
     assert exc_info.value.detail == "Grupo no encontrado"
 
 
+def test_integration_delete_group_route_removes_group_and_returns_204(db_session):
+    """Verifica que la ruta borre un grupo existente y lo saque del listado."""
+    group = groups.create_group(
+        GroupCreate(name="Borrar Integracion", members=["Ana", "Beto", "Carla"]),
+        db_session,
+    )
+
+    response = groups.delete_group(group.id, db_session)
+    listed_groups = groups.list_groups(db_session)
+
+    assert response.status_code == 204
+    assert listed_groups == []
+
+
+def test_integration_delete_group_route_maps_missing_group_to_http_404(db_session):
+    """Asegura que borrar un grupo inexistente responda con 404 controlado."""
+    with pytest.raises(HTTPException) as exc_info:
+        groups.delete_group(uuid4(), db_session)
+
+    assert exc_info.value.status_code == 404
+    assert exc_info.value.detail == "Grupo no encontrado"
+
+
 def test_integration_route_maps_invalid_expense_to_http_400(db_session):
     """Valida que un gasto inválido se traduzca a un 400 desde la ruta."""
     group = groups.create_group(

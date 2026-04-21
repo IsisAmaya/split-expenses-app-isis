@@ -5,7 +5,10 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from .config import settings
 
-engine = create_engine(settings.database_url, echo=settings.app_env == "development")
+engine = create_engine(
+    settings.database_url,
+    echo=settings.app_env == "development",
+)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

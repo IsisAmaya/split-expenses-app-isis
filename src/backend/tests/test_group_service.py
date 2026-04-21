@@ -1,6 +1,7 @@
 """Tests unitarios para la lógica de grupos."""
 
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 import pytest
 
@@ -59,3 +60,21 @@ def test_list_groups_returns_newest_first(db_session):
     groups = group_service.list_groups(db_session)
 
     assert [group.name for group in groups] == ["Nuevo", "Viejo"]
+
+
+def test_delete_group_removes_group_and_related_data(db_session, sample_expense):
+    """Asegura que borrar un grupo elimine también sus relaciones en cascada."""
+    group_id = sample_expense.group_id
+
+    deleted = group_service.delete_group(db_session, group_id)
+
+    assert deleted is True
+    assert group_service.get_group(db_session, group_id) is None
+    assert group_service.list_groups(db_session) == []
+
+
+def test_delete_group_returns_false_when_group_does_not_exist(db_session):
+    """Confirma que intentar borrar un grupo inexistente no rompe el servicio."""
+    deleted = group_service.delete_group(db_session, uuid4())
+
+    assert deleted is False

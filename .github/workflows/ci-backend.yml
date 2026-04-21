@@ -36,24 +36,31 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt # Instalar paquetes listados en requirements.txt
+          pip install -r ./src/backend/requirements.txt # Instalar paquetes listados en requirements.txt
 
       # 4. Ejecutar Black (Formateador de código) en modo chequeo
       - name: Run Black (Formatter)
-        run: black app --check
+        run: black ./src/backend/app --check
 
       # 5. Ejecutar Pylint (Linter) y guardar reporte
       - name: Run Pylint (Linter)
-        run: pylint app --output-format=text --fail-under=9 > pylint-report.txt || true # Continúa aunque falle Pylint (para Sonar)
+        run: pylint ./src/backend/app --output-format=text --fail-under=9 > pylint-report.txt || true
 
       # 6. Ejecutar Flake8 (Linter) y guardar reporte
       - name: Run Flake8 (Linter)
-        run: flake8 app --output-file=flake8-report.txt || true # Continúa aunque falle Flake8 (para Sonar)
+        run: flake8 ./src/backend/app --output-file=flake8-report.txt || true
 
       # 7. Ejecutar Pruebas Unitarias con Pytest y generar reporte de cobertura
       - name: Run Unit Tests with pytest and Coverage
         run: |
-          pytest --ignore=tests/test_acceptance_app.py  --ignore=tests/test_smoke_app.py --ignore=tests/test_e2e_routes.py --ignore=tests/test_security_routes.py # Genera un informe XML para SonarCloud
+          pytest ./src/backend/tests \
+            --cov=./src/backend/app \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term \
+            --ignore=./src/backend/tests/test_acceptance_app.py \
+            --ignore=./src/backend/tests/test_smoke_app.py \
+            --ignore=./src/backend/tests/test_e2e_routes.py \
+            --ignore=./src/backend/tests/test_security_routes.py
 
       # 7.1. Cargar reportes de cobertura y pruebas unitarias como artefactos
       - name: Upload Test Reports Artifacts
@@ -62,6 +69,7 @@ jobs:
         with:
           name: test-reports
           path: |
+            coverage.xml
             htmlcov/
             report.html
 
@@ -76,17 +84,17 @@ jobs:
 
       # 9. Configurar QEMU (para buildx multi-plataforma, aunque no lo usemos explícitamente)
       - name: Set up QEMU
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
         uses: docker/setup-qemu-action@v3
 
       # 10. Configurar Docker Buildx (constructor avanzado)
       - name: Set up Docker Buildx
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
         uses: docker/setup-buildx-action@v3
 
       # 11. Iniciar sesión en Docker Hub
       - name: Login to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
@@ -110,8 +118,7 @@ jobs:
       # 13. Establecer las salidas del job usadas para el despliegue
       - name: Set Job Outputs
         id: set_outputs
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
         run: |
           echo "repo_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
           echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
-
