@@ -80,30 +80,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Automáticamente proporcionado
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # El secreto que creaste
 
-      # --- Pasos de Docker (solo en push a main) ---
+# --- Pasos de Docker (solo en push a main o ejecución manual) ---
 
-      # 9. Configurar QEMU (para buildx multi-plataforma, aunque no lo usemos explícitamente)
+      # 9. Configurar QEMU
       - name: Set up QEMU
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: (github.event_name == 'pull_request' && github.base_ref == 'main') || github.event_name == 'workflow_dispatch'
         uses: docker/setup-qemu-action@v3
 
-      # 10. Configurar Docker Buildx (constructor avanzado)
+      # 10. Configurar Docker Buildx
       - name: Set up Docker Buildx
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: (github.event_name == 'pull_request' && github.base_ref == 'main') || github.event_name == 'workflow_dispatch'
         uses: docker/setup-buildx-action@v3
 
       # 11. Iniciar sesión en Docker Hub
       - name: Login to Docker Hub
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: (github.event_name == 'pull_request' && github.base_ref == 'main') || github.event_name == 'workflow_dispatch'
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 12. Construir y pushear imagen Docker a Docker Hub
+      # 12. Construir y pushear imagen Docker
       - name: Build and push Docker image
-        id: docker_build_push # Darle ID para referenciar output
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        id: docker_build_push
+        if: (github.event_name == 'pull_request' && github.base_ref == 'main') || github.event_name == 'workflow_dispatch'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -115,10 +115,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 13. Establecer las salidas del job usadas para el despliegue
+      # 13. Establecer las salidas del job
       - name: Set Job Outputs
         id: set_outputs
-        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        if: (github.event_name == 'pull_request' && github.base_ref == 'main') || github.event_name == 'workflow_dispatch'
         run: |
           echo "repo_name=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
           echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
